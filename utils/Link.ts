@@ -2,10 +2,14 @@ import { WebSocketLink } from "@apollo/client/link/ws";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { OperationDefinitionNode } from "graphql";
 import { HttpLink, split } from "@apollo/client";
+import getConfig from "next/config";
+
+const { publicRuntimeConfig } = getConfig();
+const { WS_URI, API_URI } = publicRuntimeConfig;
 
 const wsLink = process.browser
   ? new WebSocketLink({
-      uri: `ws://localhost:3001/graphql`,
+      uri: WS_URI,
       options: {
         reconnect: true,
       },
@@ -14,7 +18,7 @@ const wsLink = process.browser
 
 const httplink = (token) =>
   new HttpLink({
-    uri: "http://localhost:3001/graphql",
+    uri: API_URI,
     credentials: "same-origin",
     headers: {
       authorization: token,
