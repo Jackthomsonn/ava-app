@@ -2,12 +2,20 @@ import React from "react";
 import Head from "next/head";
 import "../styles/global.css";
 import Sidebar from "../components/sidebar";
-import { ApolloClient, ApolloProvider, InMemoryCache } from "@apollo/client";
+import {
+  ApolloClient,
+  ApolloLink,
+  ApolloProvider,
+  InMemoryCache,
+} from "@apollo/client";
 import { link } from "../utils/Link";
+import { UserProvider } from "@auth0/nextjs-auth0";
 
 const App = ({ Component, pageProps }) => {
+  // This gets re-initialised every time the app is loaded
+  // Need to find a way to persist the token across reloads e.g. localStorage
   const client = new ApolloClient({
-    link,
+    link: link(pageProps.accessToken) as ApolloLink,
     cache: new InMemoryCache(),
   });
 
@@ -17,10 +25,12 @@ const App = ({ Component, pageProps }) => {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <div className="flex">
-        <ApolloProvider client={client}>
-          <Sidebar />
-          <Component {...pageProps} />
-        </ApolloProvider>
+        <UserProvider>
+          <ApolloProvider client={client}>
+            <Sidebar />
+            <Component {...pageProps} />
+          </ApolloProvider>
+        </UserProvider>
       </div>
     </>
   );

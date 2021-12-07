@@ -1,13 +1,49 @@
-import { gql, useSubscription } from "@apollo/client";
+import { gql, useQuery, useSubscription } from "@apollo/client";
+import { getAccessToken, withPageAuthRequired } from "@auth0/nextjs-auth0";
+
+export async function getServerSideProps(context) {
+  try {
+    const { accessToken } = await getAccessToken(context.req, context.res);
+
+    return {
+      props: { accessToken },
+    };
+  } catch {
+    return { props: {} };
+  }
+}
+
+const getProviders = () => {
+  const { data } = useQuery(
+    gql`
+      query GetProviders {
+        getProviders {
+          name
+        }
+      }
+    `
+  );
+
+  return { providers: data };
+};
+
+const listenForNewCommands = () => {
+  const { data } = useSubscription(
+    gql`
+      subscription CommandSent {
+        commandSent {
+          name
+        }
+      }
+    `
+  );
+
+  return { newCommands: data };
+};
 
 const Home = () => {
-  const { data } = useSubscription(gql`
-    subscription CommandSent {
-      commandSent {
-        name
-      }
-    }
-  `);
+  const { providers } = getProviders();
+  const { newCommands } = listenForNewCommands();
 
   return (
     <>
@@ -34,7 +70,9 @@ const Home = () => {
               </div>
               <div className="flex flex-col justify-start">
                 <p className="text-gray-800 text-4xl text-left dark:text-white font-bold my-4">
-                  {!data ? "No commands sent" : data?.commandSent.name}
+                  {!newCommands
+                    ? "No commands sent"
+                    : newCommands?.commandSent.name}
                 </p>
               </div>
             </div>
@@ -77,67 +115,30 @@ const Home = () => {
                   Actions
                 </p>
               </div>
-              <div className="flex items-start mb-6 rounded justify-between">
-                <span className="rounded-full text-white dark:text-gray-800 p-2 bg-yellow-300">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    viewBox="0 0 1792 1792"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M1596 380q28 28 48 76t20 88v1152q0 40-28 68t-68 28h-1344q-40 0-68-28t-28-68v-1600q0-40 28-68t68-28h896q40 0 88 20t76 48zm-444-244v376h376q-10-29-22-41l-313-313q-12-12-41-22zm384 1528v-1024h-416q-40 0-68-28t-28-68v-416h-768v1536h1280zm-128-448v320h-1024v-192l192-192 128 128 384-384zm-832-192q-80 0-136-56t-56-136 56-136 136-56 136 56 56 136-56 136-136 56z"></path>
-                  </svg>
-                </span>
-                <div className="flex items-center w-full justify-between">
-                  <div className="flex text-sm flex-col w-full ml-2 items-start justify-between">
-                    <p className="text-gray-700 dark:text-white">
-                      Sonos Control
-                    </p>
-                    <p className="text-gray-300">Active</p>
+              {providers?.getProviders?.map((d, index) => (
+                <div
+                  key={index}
+                  className="flex items-start mb-6 rounded justify-between"
+                >
+                  <span className="rounded-full text-white dark:text-gray-800 p-2 bg-yellow-300">
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="currentColor"
+                      viewBox="0 0 1792 1792"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M1596 380q28 28 48 76t20 88v1152q0 40-28 68t-68 28h-1344q-40 0-68-28t-28-68v-1600q0-40 28-68t68-28h896q40 0 88 20t76 48zm-444-244v376h376q-10-29-22-41l-313-313q-12-12-41-22zm384 1528v-1024h-416q-40 0-68-28t-28-68v-416h-768v1536h1280zm-128-448v320h-1024v-192l192-192 128 128 384-384zm-832-192q-80 0-136-56t-56-136 56-136 136-56 136 56 56 136-56 136-136 56z"></path>
+                    </svg>
+                  </span>
+                  <div className="flex items-center w-full justify-between">
+                    <div className="flex text-sm flex-col w-full ml-2 items-start justify-between">
+                      <p className="text-gray-700 dark:text-white">{d.name}</p>
+                      <p className="text-gray-300">Active</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div className="flex items-start mb-6 rounded justify-between">
-                <span className="rounded-full text-white dark:text-gray-800 p-2 bg-yellow-300">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    viewBox="0 0 1792 1792"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M1596 380q28 28 48 76t20 88v1152q0 40-28 68t-68 28h-1344q-40 0-68-28t-28-68v-1600q0-40 28-68t68-28h896q40 0 88 20t76 48zm-444-244v376h376q-10-29-22-41l-313-313q-12-12-41-22zm384 1528v-1024h-416q-40 0-68-28t-28-68v-416h-768v1536h1280zm-128-448v320h-1024v-192l192-192 128 128 384-384zm-832-192q-80 0-136-56t-56-136 56-136 136-56 136 56 56 136-56 136-136 56z"></path>
-                  </svg>
-                </span>
-                <div className="flex items-center w-full justify-between">
-                  <div className="flex text-sm flex-col w-full ml-2 items-start justify-between">
-                    <p className="text-gray-700 dark:text-white">Hue Control</p>
-                    <p className="text-gray-300">Active</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start mb-6 rounded justify-between">
-                <span className="rounded-full text-white dark:text-gray-800 p-2 bg-yellow-300">
-                  <svg
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    viewBox="0 0 1792 1792"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M1596 380q28 28 48 76t20 88v1152q0 40-28 68t-68 28h-1344q-40 0-68-28t-28-68v-1600q0-40 28-68t68-28h896q40 0 88 20t76 48zm-444-244v376h376q-10-29-22-41l-313-313q-12-12-41-22zm384 1528v-1024h-416q-40 0-68-28t-28-68v-416h-768v1536h1280zm-128-448v320h-1024v-192l192-192 128 128 384-384zm-832-192q-80 0-136-56t-56-136 56-136 136-56 136 56 56 136-56 136-136 56z"></path>
-                  </svg>
-                </span>
-                <div className="flex items-center w-full justify-between">
-                  <div className="flex text-sm flex-col w-full ml-2 items-start justify-between">
-                    <p className="text-gray-700 dark:text-white">Ask AVA</p>
-                    <p className="text-gray-300">Inactive</p>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -146,4 +147,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default withPageAuthRequired(Home);
