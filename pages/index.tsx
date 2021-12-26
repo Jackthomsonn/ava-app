@@ -16,37 +16,37 @@ export async function getServerSideProps(context) {
   }
 }
 
-const getProviders = () => {
-  const { data } = useQuery(
-    gql`
-      query GetProviders {
-        getProviders {
-          name
-        }
-      }
-    `
-  );
+// const getProviders = () => {
+//   const { data } = useQuery(
+//     gql`
+//       query GetProviders {
+//         getProviders {
+//           name
+//         }
+//       }
+//     `
+//   );
 
-  return { providers: data };
-};
+//   return { providers: data };
+// };
 
-const listenForNewCommands = () => {
-  const { data } = useSubscription(
-    gql`
-      subscription CommandSent {
-        commandSent {
-          name
-        }
-      }
-    `
-  );
+// const listenForNewCommands = () => {
+//   const { data } = useSubscription(
+//     gql`
+//       subscription CommandSent {
+//         commandSent {
+//           name
+//         }
+//       }
+//     `
+//   );
 
-  return { newCommands: data };
-};
+//   return { newCommands: data };
+// };
 
 const Home = () => {
-  const { providers } = getProviders();
-  const { newCommands } = listenForNewCommands();
+  // const { providers } = getProviders();
+  // const { newCommands } = listenForNewCommands();
 
   const [devices, setDevices] = useState([
     {

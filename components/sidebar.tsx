@@ -4,8 +4,6 @@ import Link from "next/link";
 const Sidebar = () => {
   const { user } = useUser();
 
-  console.log(user);
-
   return (
     <nav className="bg-gray-800 w-20 h-screen justify-between flex flex-col">
       <div className="mt-10 mb-10">
