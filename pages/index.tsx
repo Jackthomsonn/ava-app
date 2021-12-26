@@ -1,5 +1,8 @@
 import { gql, useQuery, useSubscription } from "@apollo/client";
 import { getAccessToken, withPageAuthRequired } from "@auth0/nextjs-auth0";
+import {} from "next";
+import Image from "next/image";
+import { useState } from "react";
 
 export async function getServerSideProps(context) {
   try {
@@ -45,102 +48,101 @@ const Home = () => {
   const { providers } = getProviders();
   const { newCommands } = listenForNewCommands();
 
+  const [devices, setDevices] = useState([
+    {
+      name: "Living room lights",
+      isActive: true,
+    },
+    {
+      name: "Office lights",
+      isActive: false,
+    },
+  ]);
+
+  const toggleState = (index) => {
+    const newDevices = [...devices];
+    newDevices[index].isActive = !newDevices[index].isActive;
+    setDevices(newDevices);
+  };
+
   return (
     <>
-      <div className="flex flex-wrap w-full space-x-4 sm:space-x-0 m-4 space-y-4 ">
-        <div className="flex-col flex-wrap w-full space-y-2">
-          <div className="flex flex-row">
-            <div className="flex-auto shadow-lg rounded-2xl w-36 p-4 bg-white dark:bg-gray-800">
-              <div className="flex items-center">
-                <span className="bg-green-500 p-2 h-4 w-4 rounded-full relative">
-                  <svg
-                    width="20"
-                    fill="currentColor"
-                    height="20"
-                    className="text-white h-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                    viewBox="0 0 1792 1792"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M1362 1185q0 153-99.5 263.5t-258.5 136.5v175q0 14-9 23t-23 9h-135q-13 0-22.5-9.5t-9.5-22.5v-175q-66-9-127.5-31t-101.5-44.5-74-48-46.5-37.5-17.5-18q-17-21-2-41l103-135q7-10 23-12 15-2 24 9l2 2q113 99 243 125 37 8 74 8 81 0 142.5-43t61.5-122q0-28-15-53t-33.5-42-58.5-37.5-66-32-80-32.5q-39-16-61.5-25t-61.5-26.5-62.5-31-56.5-35.5-53.5-42.5-43.5-49-35.5-58-21-66.5-8.5-78q0-138 98-242t255-134v-180q0-13 9.5-22.5t22.5-9.5h135q14 0 23 9t9 23v176q57 6 110.5 23t87 33.5 63.5 37.5 39 29 15 14q17 18 5 38l-81 146q-8 15-23 16-14 3-27-7-3-3-14.5-12t-39-26.5-58.5-32-74.5-26-85.5-11.5q-95 0-155 43t-60 111q0 26 8.5 48t29.5 41.5 39.5 33 56 31 60.5 27 70 27.5q53 20 81 31.5t76 35 75.5 42.5 62 50 53 63.5 31.5 76.5 13 94z"></path>
-                  </svg>
-                </span>
-                <p className="text-md text-gray-700 dark:text-gray-50 ml-2">
-                  Latest commands
-                </p>
-              </div>
-              <div className="flex flex-col justify-start">
-                <p className="text-gray-800 text-4xl text-left dark:text-white font-bold my-4">
-                  {!newCommands
-                    ? "No commands sent"
-                    : newCommands?.commandSent.name}
-                </p>
-              </div>
+      <div className="flex flex-wrap w-full space-y-4 md:space-y-0 md:space-x-4 h-full m-4">
+        <div className="shadow-lg rounded-xl bg-blue-500 w-full md:w-64 p-6 dark:bg-gray-800 overflow-hidden">
+          <p className="text-white text-xl">Current status</p>
+          <div className="flex items-center my-4 text-blue-500 rounded justify-between">
+            <span className="rounded-lg p-2 bg-white">
+              <svg
+                width="25"
+                height="25"
+                fill="currentColor"
+                viewBox="0 0 1792 1792"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M1520 1216q0-40-28-68l-208-208q-28-28-68-28-42 0-72 32 3 3 19 18.5t21.5 21.5 15 19 13 25.5 3.5 27.5q0 40-28 68t-68 28q-15 0-27.5-3.5t-25.5-13-19-15-21.5-21.5-18.5-19q-33 31-33 73 0 40 28 68l206 207q27 27 68 27 40 0 68-26l147-146q28-28 28-67zm-703-705q0-40-28-68l-206-207q-28-28-68-28-39 0-68 27l-147 146q-28 28-28 67 0 40 28 68l208 208q27 27 68 27 42 0 72-31-3-3-19-18.5t-21.5-21.5-15-19-13-25.5-3.5-27.5q0-40 28-68t68-28q15 0 27.5 3.5t25.5 13 19 15 21.5 21.5 18.5 19q33-31 33-73zm895 705q0 120-85 203l-147 146q-83 83-203 83-121 0-204-85l-206-207q-83-83-83-203 0-123 88-209l-88-88q-86 88-208 88-120 0-204-84l-208-208q-84-84-84-204t85-203l147-146q83-83 203-83 121 0 204 85l206 207q83 83 83 203 0 123-88 209l88 88q86-88 208-88 120 0 204 84l208 208q84 84 84 204z"></path>
+              </svg>
+            </span>
+            <div className="flex flex-col w-full ml-2 items-start justify-evenly">
+              <p className="text-white text-lg">45%</p>
+              <p className="text-blue-200 text-sm">CPU usage</p>
             </div>
           </div>
-
-          <div className="flex flex-row">
-            <div className="flex-auto shadow-lg rounded-2xl w-36 p-4 bg-white dark:bg-gray-800">
-              <div className="flex items-center">
-                <span className="bg-green-500 p-2 h-4 w-4 rounded-full relative">
-                  <svg
-                    width="20"
-                    fill="currentColor"
-                    height="20"
-                    className="text-white h-2 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                    viewBox="0 0 1792 1792"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M1362 1185q0 153-99.5 263.5t-258.5 136.5v175q0 14-9 23t-23 9h-135q-13 0-22.5-9.5t-9.5-22.5v-175q-66-9-127.5-31t-101.5-44.5-74-48-46.5-37.5-17.5-18q-17-21-2-41l103-135q7-10 23-12 15-2 24 9l2 2q113 99 243 125 37 8 74 8 81 0 142.5-43t61.5-122q0-28-15-53t-33.5-42-58.5-37.5-66-32-80-32.5q-39-16-61.5-25t-61.5-26.5-62.5-31-56.5-35.5-53.5-42.5-43.5-49-35.5-58-21-66.5-8.5-78q0-138 98-242t255-134v-180q0-13 9.5-22.5t22.5-9.5h135q14 0 23 9t9 23v176q57 6 110.5 23t87 33.5 63.5 37.5 39 29 15 14q17 18 5 38l-81 146q-8 15-23 16-14 3-27-7-3-3-14.5-12t-39-26.5-58.5-32-74.5-26-85.5-11.5q-95 0-155 43t-60 111q0 26 8.5 48t29.5 41.5 39.5 33 56 31 60.5 27 70 27.5q53 20 81 31.5t76 35 75.5 42.5 62 50 53 63.5 31.5 76.5 13 94z"></path>
-                  </svg>
-                </span>
-                <p className="text-md text-gray-700 dark:text-gray-50 ml-2">
-                  CPU load
-                </p>
-              </div>
-              <div className="flex flex-col justify-start">
-                <p className="text-gray-800 text-4xl text-left dark:text-white font-bold my-4">
-                  20%
-                </p>
-                <div className="relative w-28 h-2 bg-gray-200 rounded">
-                  <div className="absolute top-0 h-2  left-0 rounded bg-green-500 w-10"></div>
-                </div>
-              </div>
+          <div className="flex items-center text-blue-500 rounded justify-between">
+            <span className="rounded-lg p-2 bg-white">
+              <svg
+                width="25"
+                height="25"
+                fill="currentColor"
+                viewBox="0 0 1792 1792"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M1600 736v192q0 40-28 68t-68 28h-416v416q0 40-28 68t-68 28h-192q-40 0-68-28t-28-68v-416h-416q-40 0-68-28t-28-68v-192q0-40 28-68t68-28h416v-416q0-40 28-68t68-28h192q40 0 68 28t28 68v416h416q40 0 68 28t28 68z"></path>
+              </svg>
+            </span>
+            <div className="flex flex-col w-full ml-2 items-start justify-evenly">
+              <p className="text-white text-lg">27</p>
+              <p className="text-blue-200 text-sm">Failed commands</p>
             </div>
           </div>
+        </div>
 
-          <div className="flex flex-auto flex-wrap space-y-4 sm:space-y-0 sm:space-x-4">
-            <div className="flex-auto shadow-lg rounded-xl w-full md:w-80 p-4 bg-white dark:bg-gray-800 relative overflow-hidden">
-              <div className="w-full flex items-center justify-between mb-8">
-                <p className="text-gray-800 dark:text-white text-xl font-normal">
-                  Actions
-                </p>
-              </div>
-              {providers?.getProviders?.map((d, index) => (
-                <div
-                  key={index}
-                  className="flex items-start mb-6 rounded justify-between"
+        <div className="shadow-lg rounded-xl bg-blue-500 w-full md:w-64 p-6 dark:bg-gray-800 overflow-hidden">
+          <p className="text-white text-xl">Devices</p>
+          {devices.map((device, index) => {
+            return (
+              <div className="flex items-center text-blue-500 rounded justify-between mt-4">
+                <span
+                  className="rounded-lg p-2 bg-white"
+                  onClick={() => toggleState(index)}
                 >
-                  <span className="rounded-full text-white dark:text-gray-800 p-2 bg-yellow-300">
-                    <svg
-                      width="20"
-                      height="20"
+                  <svg
+                    className={`fill-current h-5 w-5 mx-auto ${
+                      device.isActive ? "text-green-500" : "text-gray-500"
+                    }`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M13 4.00894C13.0002 3.45665 12.5527 3.00876 12.0004 3.00854C11.4481 3.00833 11.0002 3.45587 11 4.00815L10.9968 12.0116C10.9966 12.5639 11.4442 13.0118 11.9965 13.012C12.5487 13.0122 12.9966 12.5647 12.9968 12.0124L13 4.00894Z"
                       fill="currentColor"
-                      viewBox="0 0 1792 1792"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M1596 380q28 28 48 76t20 88v1152q0 40-28 68t-68 28h-1344q-40 0-68-28t-28-68v-1600q0-40 28-68t68-28h896q40 0 88 20t76 48zm-444-244v376h376q-10-29-22-41l-313-313q-12-12-41-22zm384 1528v-1024h-416q-40 0-68-28t-28-68v-416h-768v1536h1280zm-128-448v320h-1024v-192l192-192 128 128 384-384zm-832-192q-80 0-136-56t-56-136 56-136 136-56 136 56 56 136-56 136-136 56z"></path>
-                    </svg>
-                  </span>
-                  <div className="flex items-center w-full justify-between">
-                    <div className="flex text-sm flex-col w-full ml-2 items-start justify-between">
-                      <p className="text-gray-700 dark:text-white">{d.name}</p>
-                      <p className="text-gray-300">Active</p>
-                    </div>
-                  </div>
+                    ></path>
+                    <path
+                      d="M4 12.9917C4 10.7826 4.89541 8.7826 6.34308 7.33488L7.7573 8.7491C6.67155 9.83488 6 11.3349 6 12.9917C6 16.3054 8.68629 18.9917 12 18.9917C15.3137 18.9917 18 16.3054 18 12.9917C18 11.3348 17.3284 9.83482 16.2426 8.74903L17.6568 7.33481C19.1046 8.78253 20 10.7825 20 12.9917C20 17.41 16.4183 20.9917 12 20.9917C7.58172 20.9917 4 17.41 4 12.9917Z"
+                      fill="currentColor"
+                    ></path>
+                  </svg>
+                </span>
+                <div className="flex flex-col w-full ml-2 items-start justify-evenly">
+                  <p className="text-white text-lg">{device.name}</p>
+                  <p className="text-blue-200 text-sm">
+                    <span className="font-bold">Current status:</span>{" "}
+                    {device.isActive ? "on" : "off"}
+                  </p>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>

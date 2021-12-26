@@ -12,8 +12,6 @@ import { link } from "../utils/Link";
 import { UserProvider } from "@auth0/nextjs-auth0";
 
 const App = ({ Component, pageProps }) => {
-  // This gets re-initialised every time the app is loaded
-  // Need to find a way to persist the token across reloads e.g. localStorage
   const client = new ApolloClient({
     link: link(pageProps.accessToken) as ApolloLink,
     cache: new InMemoryCache(),
